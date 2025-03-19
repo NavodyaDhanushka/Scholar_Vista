@@ -1,0 +1,39 @@
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+env/
+*.egg-info/
+*.dist-info/
+
+# FastAPI specific
+*.sqlite3  # If you're using SQLite
+db.sqlite3  # If you're using a database like SQLite (adjust the name if you use a different db)
+
+# Logs
+*.log
+
+# Environment files (e.g., .env files for environment variables)
+.env
+*.env
+
+# Test files
+*.cover
+coverage.xml
+nosetests.xml
+*.log
+
+# Jupyter notebooks (if using them for testing or documentation)
+.ipynb_checkpoints/
+
+# Pytest cache directory (if using pytest)
+.pytest_cache/
+
+# Docker files (optional, if you're using Docker and don't want to include the image)
+docker-compose.yml
+Dockerfile
+
+# Other temporary files
+*.swp
