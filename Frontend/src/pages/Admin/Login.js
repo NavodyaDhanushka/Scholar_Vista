@@ -31,7 +31,7 @@ const AdminLogin = () => {
       console.log("Login successful:", data);
 
       // If login is successful, navigate to the dashboard
-      navigate("/dashboard");
+      navigate("/researchPaperManagement");
     } catch (error) {
       setError(error.message);  // Set the error message
       console.error("Error during login:", error);

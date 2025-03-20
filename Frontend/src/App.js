@@ -5,6 +5,7 @@ import HomePage from "./pages/Research Publication Management/HomePage";
 import AdminRegister from "./pages/Admin/Register";
 import AdminLogin from "./pages/Admin/Login";
 import './App.css';
+import ResearchPapersManagement from "./pages/Research Publication Management/ResearchPapersManagement";
 
 const AnimatedRoutes = () => {
     const location = useLocation();
@@ -23,6 +24,7 @@ const AnimatedRoutes = () => {
                         <Route path="/" element={<HomePage />} />
                         <Route path="/register" element={<AdminRegister />} />
                         <Route path="/login" element={<AdminLogin />} />
+                        <Route path="/researchPaperManagement" element={<ResearchPapersManagement />} />
                     </Routes>
                 </div>
             </CSSTransition>

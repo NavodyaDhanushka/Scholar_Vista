@@ -45,9 +45,8 @@ def extract_metadata_from_pdf(pdf_path):
 async def upload_paper(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)  # ✅ Ensure user is admin
+    current_user: dict = Depends(get_current_user)  # Ensure user is admin
 ):
-    # Check if user is admin
     if current_user["role"] != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can upload research papers")
 
