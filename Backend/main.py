@@ -1,10 +1,14 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
+
+from Backend.core.database import engine, Base
 from Backend.routers import research_papers, admin
 import uvicorn
 app = FastAPI()
 
+# Create tables
+Base.metadata.create_all(bind=engine)
 # Add CORS middleware to allow requests from specific origins
 app.add_middleware(
     CORSMiddleware,
