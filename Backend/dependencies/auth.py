@@ -2,6 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
+from sqlalchemy.orm import Session
+
+from Backend.core.database import get_db
+from Backend.models.admin import Admin
 
 router = APIRouter()
 
@@ -24,14 +28,16 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)):  # ✅ Now this works!
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):  # ✅ Now this works!
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
+        username: str = payload.get("sub")
         role: str = payload.get("role")  # Ensure the role exists
-        if not email or email not in fake_users_db:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-        return {"email": email, "role": role}
+
+        db_admin = db.query(Admin).filter(Admin.username == username).first()
+        if not db_admin:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized User")
+        return {"username": username, "role": role}
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 

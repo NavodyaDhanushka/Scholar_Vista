@@ -27,7 +27,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 # 📌 Generate JWT Token
 def create_jwt_token(admin_id: int, username: str):
     expire = datetime.utcnow() + timedelta(hours=24)
-    payload = {"sub": username, "admin_id": admin_id, "exp": expire}
+    payload = {"sub": username, "role": "admin", "exp": expire}
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 # 📌 Admin Registration

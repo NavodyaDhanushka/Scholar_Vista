@@ -27,7 +27,7 @@ const ResearchPapersManagement = () => {
         const file = event.target.files[0];
         if (file && file.type === "application/pdf") {
             // Get the token from local storage (or wherever it's stored)
-            const token = localStorage.getItem("access_token");  // Adjust based on where you store the token
+            const token = localStorage.getItem("token");  // Adjust based on where you store the token
 
             if (!token) {
                 alert("You must be logged in to upload files!");
@@ -38,7 +38,7 @@ const ResearchPapersManagement = () => {
             formData.append("file", file);
 
             try {
-                const response = await fetch("http://127.0.0.1:8005/api/upload/", {
+                const response = await fetch("http://localhost:8005/api/upload/", {
                     method: "POST",
                     body: formData,
                     headers: {

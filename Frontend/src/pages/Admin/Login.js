@@ -29,6 +29,8 @@ const AdminLogin = () => {
 
       const data = await response.json();
       console.log("Login successful:", data);
+      localStorage.setItem("token", data.access_token);
+
 
       // If login is successful, navigate to the dashboard
       navigate("/researchPaperManagement");
