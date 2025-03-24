@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const ResearchPapersManagement = () => {
     const styles = {
@@ -22,165 +22,109 @@ const ResearchPapersManagement = () => {
     const [editData, setEditData] = useState(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-    // Upload File Handler
-    const handleFileUpload = async (event) => {
-        const file = event.target.files[0];
-        if (file && file.type === "application/pdf") {
-            // Get the token from local storage (or wherever it's stored)
-            const token = localStorage.getItem("token");  // Adjust based on where you store the token
+    useEffect(() => {
+        fetchPapers();
+    }, []);
 
-            if (!token) {
-                alert("You must be logged in to upload files!");
-                return;
+    const fetchPapers = async () => {
+        try {
+            const response = await fetch("http://localhost:8005/api/papers/");
+            if (response.ok) {
+                const data = await response.json();
+                setPapers(data);
             }
-
-            const formData = new FormData();
-            formData.append("file", file);
-
-            try {
-                const response = await fetch("http://localhost:8005/api/upload/", {
-                    method: "POST",
-                    body: formData,
-                    headers: {
-                        "Authorization": `Bearer ${token}`,  // Add token to Authorization header
-                    },
-                });
-
-                if (response.ok) {
-                    const result = await response.json();
-                    const newPaper = {
-                        id: papers.length + 1,
-                        title: file.name.replace(".pdf", ""),
-                        author: "Unknown Author",  // Placeholder
-                        year: new Date().getFullYear().toString(),
-                        size: (file.size / 1024 / 1024).toFixed(2) + "MB",
-                        date: new Date().toLocaleDateString(),
-                    };
-
-                    setPapers([...papers, newPaper]);
-                    alert("File uploaded successfully!");
-                } else {
-                    alert(`Upload failed with status: ${response.status}`);
-                }
-            } catch (error) {
-                alert("Error uploading file: " + error.message);
-            }
-        } else {
-            alert("Only PDF files are allowed!");
+        } catch (error) {
+            console.error("Error fetching papers:", error);
         }
     };
 
-
-    // View Paper Details
-    const handleView = (paper) => setSelectedPaper(paper);
-
-    // Edit Paper
-    const handleEdit = (paper) => setEditData({ ...paper });
-
-    const handleEditChange = (e) => {
-        setEditData({ ...editData, [e.target.name]: e.target.value });
+    const handleFileUpload = async (event) => {
+        const file = event.target.files[0];
+        if (!file || file.type !== "application/pdf") {
+            alert("Only PDF files are allowed!");
+            return;
+        }
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("You must be logged in to upload files!");
+            return;
+        }
+        const formData = new FormData();
+        formData.append("file", file);
+        try {
+            const response = await fetch("http://localhost:8005/api/upload/", {
+                method: "POST",
+                body: formData,
+                headers: { "Authorization": `Bearer ${token}` },
+            });
+            if (response.ok) {
+                fetchPapers();
+                alert("File uploaded successfully!");
+            }
+        } catch (error) {
+            alert("Error uploading file: " + error.message);
+        }
     };
 
-    const handleEditSave = () => {
-        setPapers(papers.map((p) => (p.id === editData.id ? editData : p)));
-        setEditData(null);
+    const handleEditSave = async () => {
+        try {
+            const response = await fetch(`http://localhost:8005/api/papers/${editData.id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify(editData),
+            });
+            if (response.ok) {
+                fetchPapers();
+                setEditData(null);
+            }
+        } catch (error) {
+            console.error("Error updating paper:", error);
+        }
     };
 
-    // Delete Paper
-    const handleDelete = (paper) => {
-        setSelectedPaper(paper);
-        setShowDeleteConfirm(true);
-    };
-
-    const confirmDelete = () => {
-        setPapers(papers.filter((p) => p.id !== selectedPaper.id));
-        setShowDeleteConfirm(false);
-        setSelectedPaper(null);
+    const confirmDelete = async () => {
+        try {
+            const response = await fetch(`http://localhost:8005/api/papers/${selectedPaper.id}`, {
+                method: "DELETE",
+                headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` },
+            });
+            if (response.ok) {
+                fetchPapers();
+                setShowDeleteConfirm(false);
+            }
+        } catch (error) {
+            console.error("Error deleting paper:", error);
+        }
     };
 
     return (
         <div style={styles.container}>
-            {/* Sidebar */}
-            <div style={styles.sidebar}>
-                <h2>📚 Research Admin</h2>
-                <nav>
-                    <p>📄 Research Papers</p>
-                    <p>📊 Analytics</p>
-                    <p>⚙️ Settings</p>
-                </nav>
-            </div>
-
-            {/* Main Content */}
+            <div style={styles.sidebar}> <h2>📚 Research Admin</h2> </div>
             <div style={styles.mainContent}>
-                <div style={styles.header}>
-                    <h2>Research Papers Management</h2>
-                    <input type="text" placeholder="Search papers..." style={{ padding: "8px", borderRadius: "5px" }} />
-                    <span>👤 Admin User</span>
-                </div>
-
+                <div style={styles.header}><h2>Research Papers Management</h2></div>
                 <div style={styles.uploadSection}>
                     <p>📤 Drag and drop your research paper PDF or</p>
                     <input type="file" accept="application/pdf" onChange={handleFileUpload} style={{ display: "none" }} id="fileUpload" />
                     <label htmlFor="fileUpload" style={styles.button}>Browse Files</label>
                 </div>
-
                 <div style={styles.fileList}>
                     <h3>Uploaded Papers</h3>
-                    {papers.length === 0 ? <p>No papers uploaded yet.</p> : papers.map((paper) => (
+                    {papers.map((paper) => (
                         <div key={paper.id} style={styles.fileItem}>
-                            <div>
-                                <strong>📄 {paper.title}</strong>
-                                <p style={{ margin: "5px 0", color: "#777" }}>
-                                    {paper.author} • {paper.year} • Uploaded on {paper.date} • {paper.size}
-                                </p>
-                            </div>
+                            <strong>📄 {paper.title}</strong>
                             <div style={styles.fileActions}>
-                                <span style={styles.icon} onClick={() => handleView(paper)}>👁️</span>
-                                <span style={styles.icon} onClick={() => handleEdit(paper)}>✏️</span>
-                                <span style={styles.icon} onClick={() => handleDelete(paper)}>🗑️</span>
+                                <span style={styles.icon} onClick={() => setEditData(paper)}>✏️</span>
+                                <span style={styles.icon} onClick={() => { setSelectedPaper(paper); setShowDeleteConfirm(true); }}>🗑️</span>
                             </div>
                         </div>
                     ))}
                 </div>
+                {editData && <div style={styles.modal}><input type="text" name="title" value={editData.title} onChange={(e) => setEditData({ ...editData, title: e.target.value })} /><button onClick={handleEditSave}>Save</button></div>}
+                {showDeleteConfirm && <div style={styles.modal}><p>Are you sure?</p><button onClick={confirmDelete}>Yes</button><button onClick={() => setShowDeleteConfirm(false)}>No</button></div>}
             </div>
-
-            {/* View Modal */}
-            {selectedPaper && (
-                <>
-                    <div style={styles.overlay} onClick={() => setSelectedPaper(null)} />
-                    <div style={styles.modal}>
-                        <h3>📄 {selectedPaper.title}</h3>
-                        <p><strong>Author:</strong> {selectedPaper.author}</p>
-                        <p><strong>Year:</strong> {selectedPaper.year}</p>
-                        <button style={styles.button} onClick={() => setSelectedPaper(null)}>Close</button>
-                    </div>
-                </>
-            )}
-
-            {/* Edit Modal */}
-            {editData && (
-                <>
-                    <div style={styles.overlay} onClick={() => setEditData(null)} />
-                    <div style={styles.modal}>
-                        <h3>Edit Paper</h3>
-                        <input type="text" name="title" value={editData.title} onChange={handleEditChange} style={styles.input} />
-                        <input type="text" name="author" value={editData.author} onChange={handleEditChange} style={styles.input} />
-                        <input type="text" name="year" value={editData.year} onChange={handleEditChange} style={styles.input} />
-                        <button style={styles.button} onClick={handleEditSave}>Save</button>
-                    </div>
-                </>
-            )}
-
-            {/* Delete Confirmation Modal */}
-            {showDeleteConfirm && (
-                <>
-                    <div style={styles.overlay} onClick={() => setShowDeleteConfirm(false)} />
-                    <div style={styles.modal}>
-                        <h3>Are you sure you want to delete?</h3>
-                        <button style={styles.button} onClick={confirmDelete}>Yes</button>
-                    </div>
-                </>
-            )}
         </div>
     );
 };
