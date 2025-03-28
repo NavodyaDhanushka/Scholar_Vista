@@ -1,14 +1,14 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
-
 from Backend.core.database import engine, Base
-from Backend.routers import research_papers, admin
+from Backend.routers import research_papers, admin, uniqe_function
 import uvicorn
 app = FastAPI()
 
 # Create tables
 Base.metadata.create_all(bind=engine)
+
 # Add CORS middleware to allow requests from specific origins
 app.add_middleware(
     CORSMiddleware,
@@ -24,6 +24,8 @@ app.mount("/files", StaticFiles(directory="uploads"), name="files")
 # Include Research Paper API
 app.include_router(research_papers.router, prefix="/api", tags=["Research Papers"])
 app.include_router(admin.router, prefix="/api", tags=["Admin"])
+
+app.include_router(uniqe_function.router, prefix="/api", tags=["Unique Function"])
 
 @app.get("/")
 async def root():

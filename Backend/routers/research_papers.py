@@ -4,9 +4,10 @@ import re
 import fitz
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status
 from sqlalchemy.orm import Session
+from starlette.responses import FileResponse
 from Backend.core.database import get_db
 from Backend.dependencies.auth import get_current_user
-from Backend.models.models import ResearchPaper
+from Backend.models.research_papers import ResearchPaper
 from Backend.schemas.research_papers import ResearchPaperResponse
 
 router = APIRouter()
@@ -93,13 +94,8 @@ async def update_paper(
     author: str = Form(None),
     year: int = Form(None),
     introduction: str = Form(None),
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
-    # Check if user is admin
-    if current_user["role"] != "admin":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can update research papers")
-
     paper = db.query(ResearchPaper).filter(ResearchPaper.id == paper_id).first()
     if not paper:
         raise HTTPException(status_code=404, detail="Paper not found")
@@ -118,7 +114,6 @@ async def update_paper(
     db.refresh(paper)
 
     return {"message": "Paper updated successfully", "paper": paper}
-
 
 # 📌 Delete Research Paper (Admins Only)
 @router.delete("/papers/{paper_id}")
@@ -140,3 +135,8 @@ async def delete_paper(paper_id: int, db: Session = Depends(get_db), current_use
     db.commit()
 
     return {"message": "Paper deleted successfully"}
+
+@router.get("/download/{filename}")
+async def download_file(filename: str):
+    file_path = f"uploads/{filename}"  # Adjust path based on where PDFs are stored
+    return FileResponse(file_path, filename=filename, media_type="application/pdf")
