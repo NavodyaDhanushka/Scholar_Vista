@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
 from Backend.core.database import engine, Base
-from Backend.routers import research_papers, admin, uniqe_function
+from Backend.routers import research_papers, admin, uniqe_function, authors
 import uvicorn
 app = FastAPI()
 
@@ -27,10 +27,12 @@ app.include_router(admin.router, prefix="/api", tags=["Admin"])
 
 app.include_router(uniqe_function.router, prefix="/api", tags=["Unique Function"])
 
+app.include_router(authors.router, prefix="/api", tags=["Authors"])
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to Scholar Vista!"}
 
 # Main function to start FastAPI
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8005)
+    uvicorn.run(app, host="127.0.0.1", port=8010)
