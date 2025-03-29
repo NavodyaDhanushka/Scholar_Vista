@@ -4,7 +4,7 @@ __pycache__/
 *.pyo
 *.pyd
 venv/
-env/
+.env/
 *.egg-info/
 *.dist-info/
 
@@ -37,3 +37,4 @@ Dockerfile
 
 # Other temporary files
 *.swp
+

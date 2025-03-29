@@ -24,29 +24,31 @@ const AdminRegister = () => {
     e.preventDefault();
     console.log("Registering:", formData);
 
+    // Fix field name: Convert fullName to name
+    const { fullName, terms, ...rest } = formData;
+    const cleanFormData = { name: fullName, ...rest };
+
     try {
       const response = await fetch("http://localhost:8005/api/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cleanFormData),
       });
 
       if (!response.ok) {
-        throw new Error("Registration failed, please try again.");
+        const errorText = await response.text();
+        throw new Error(`Registration failed: ${errorText}`);
       }
 
       const data = await response.json();
       console.log("Registration successful:", data);
-
-      // Redirect to login page after successful registration
       navigate("/login");
     } catch (error) {
-      setError(error.message);  // Display error message
+      setError(error.message);
       console.error("Error during registration:", error);
     }
   };
+
 
   return (
       <div style={styles.container}>
