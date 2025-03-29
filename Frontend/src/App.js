@@ -7,6 +7,7 @@ import AdminLogin from "./pages/Admin/Login";
 import './App.css';
 import ResearchPapersManagement from "./pages/Research Publication Management/ResearchPapersManagement";
 import AIAssistant from "./pages/Research Discussion & Indexing Function/AIAssistant";
+import AddAuthorForm from "./pages/Author Management/AddAuthorForm";
 
 const AnimatedRoutes = () => {
     const location = useLocation();
@@ -27,6 +28,7 @@ const AnimatedRoutes = () => {
                         <Route path="/login" element={<AdminLogin />} />
                         <Route path="/researchPaperManagement" element={<ResearchPapersManagement />} />
                         <Route path="/aiAssistant" element={<AIAssistant />} />
+                        <Route path="/addAuthor" element={<AddAuthorForm />} />
                     </Routes>
                 </div>
             </CSSTransition>
