@@ -1,0 +1,50 @@
+/* Container for the search bar */
+.search-bar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+/* Input field styling */
+.search-bar-container input {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    margin-bottom: 10px;
+    transition: border-color 0.3s;
+}
+
+.search-bar-container input:focus {
+    border-color: #3182ce;
+}
+
+/* Button styling */
+.search-bar-container button {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    border: none;
+    background-color: #3182ce;
+    color: white;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-bar-container button:hover {
+    background-color: #2b6cb0;
+}
+
+/* Optional: Add a "Search" label above the search bar */
+.search-bar-container label {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: #4a5568;
+}

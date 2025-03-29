@@ -8,6 +8,8 @@ import './App.css';
 import ResearchPapersManagement from "./pages/Research Publication Management/ResearchPapersManagement";
 import AIAssistant from "./pages/Research Discussion & Indexing Function/AIAssistant";
 import AddAuthorForm from "./pages/Author Management/AddAuthorForm";
+import SearchPage from "./pages/Automated Data Extraction & Source Management/pages/SearchPage";
+import TrendingReport from "./pages/Automated Data Extraction & Source Management/pages/TrendingReport";
 
 const AnimatedRoutes = () => {
     const location = useLocation();
@@ -29,6 +31,8 @@ const AnimatedRoutes = () => {
                         <Route path="/researchPaperManagement" element={<ResearchPapersManagement />} />
                         <Route path="/aiAssistant" element={<AIAssistant />} />
                         <Route path="/addAuthor" element={<AddAuthorForm />} />
+                        <Route path="/searchLogs" element={<SearchPage />} />
+                        <Route path="/trendingReport" element={<TrendingReport/>} />
                     </Routes>
                 </div>
             </CSSTransition>
