@@ -58,9 +58,10 @@ const HomePage = () => {
                 <h1 style={{ fontSize: "20px", fontWeight: "bold" }}>📚 Scholar Vista</h1>
                 <nav style={{ display: "flex", gap: "16px" }}>
                     <a href="#" style={{ color: "#555", textDecoration: "none" }}>Home</a>
-                    <a href="#" style={{ color: "#555", textDecoration: "none" }}>Browse</a>
-                    <a href="#" style={{ color: "#555", textDecoration: "none" }}>Categories</a>
-                    <a href="#" style={{ color: "#555", textDecoration: "none" }}>About</a>
+                    <a href="/author" style={{ color: "#555", textDecoration: "none" }}>Authors</a>
+                    <a href="/searchLogs" style={{ color: "#555", textDecoration: "none" }}>Discover</a>
+                    <a href="/trendingReport" style={{ color: "#555", textDecoration: "none" }}>Trending Researches</a>
+                    <a href="#" style={{ color: "#555", textDecoration: "none" }}>Q & A</a>
                 </nav>
                 <div style={{ display: "flex", gap: "12px" }}>
                     <button onClick={() => navigate("/login")} style={{ color: "#555", background: "none", border: "none" }}>
