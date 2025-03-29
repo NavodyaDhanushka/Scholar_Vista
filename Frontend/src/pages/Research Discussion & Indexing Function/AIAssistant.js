@@ -31,7 +31,7 @@ const AIAssistant = () => {
                 <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "10px", borderBottom: "1px solid #ddd" }}>
                     <h2 style={{ margin: 0 }}>AI Assistant</h2>
                     <nav>
-                        <a href="#" style={{ margin: "0 10px", textDecoration: "none", color: "#333" }}>Home</a>
+                        <a href="/" style={{ margin: "0 10px", textDecoration: "none", color: "#333" }}>Home</a>
                         <a href="#" style={{ margin: "0 10px", textDecoration: "none", color: "#333" }}>History</a>
                         <a href="#" style={{ margin: "0 10px", textDecoration: "none", color: "#333" }}>Settings</a>
                     </nav>

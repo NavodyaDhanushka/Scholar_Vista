@@ -10,6 +10,7 @@ import AIAssistant from "./pages/Research Discussion & Indexing Function/AIAssis
 import AddAuthorForm from "./pages/Author Management/AddAuthorForm";
 import SearchPage from "./pages/Automated Data Extraction & Source Management/pages/SearchPage";
 import TrendingReport from "./pages/Automated Data Extraction & Source Management/pages/TrendingReport";
+import SearchLogsManager from "./pages/Automated Data Extraction & Source Management/components/SearchLogsManager";
 
 const AnimatedRoutes = () => {
     const location = useLocation();
@@ -33,6 +34,7 @@ const AnimatedRoutes = () => {
                         <Route path="/addAuthor" element={<AddAuthorForm />} />
                         <Route path="/searchLogs" element={<SearchPage />} />
                         <Route path="/trendingReport" element={<TrendingReport/>} />
+                        <Route path="/searchLogsManagement" element={<SearchLogsManager/>} />
                     </Routes>
                 </div>
             </CSSTransition>
