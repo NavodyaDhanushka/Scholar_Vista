@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 const HomePage = () => {
     const navigate = useNavigate();
     const [papers, setPapers] = useState([]);
+    const [searchQuery, setSearchQuery] = useState(""); // State for the search query
+    const [filteredPapers, setFilteredPapers] = useState([]); // State for the filtered papers
 
     useEffect(() => {
         const fetchPapers = async () => {
@@ -16,6 +18,7 @@ const HomePage = () => {
 
                 const data = await response.json();
                 setPapers(data);
+                setFilteredPapers(data); // Initially, show all papers
             } catch (error) {
                 console.error("Error fetching papers:", error);
             }
@@ -23,6 +26,21 @@ const HomePage = () => {
 
         fetchPapers();
     }, []);
+
+    // Search handler function
+    const handleSearch = (e) => {
+        setSearchQuery(e.target.value);
+        const filtered = papers.filter((paper) => {
+            return (
+                (paper.title && paper.title.toLowerCase().includes(e.target.value.toLowerCase())) ||
+                (paper.author && paper.author.toLowerCase().includes(e.target.value.toLowerCase())) ||
+                (paper.institution && paper.institution.toLowerCase().includes(e.target.value.toLowerCase())) ||
+                (paper.keywords && paper.keywords.toLowerCase().includes(e.target.value.toLowerCase())) // Include other fields you want to search
+            );
+        });
+        setFilteredPapers(filtered);
+    };
+
 
     const handleDownload = async (filePath) => {
         try {
@@ -83,11 +101,15 @@ const HomePage = () => {
             <div style={{ textAlign: "center", padding: "48px 0" }}>
                 <h2 style={{ fontSize: "24px", fontWeight: "bold" }}>Find Research Papers</h2>
                 <div style={{ marginTop: "24px", display: "flex", justifyContent: "center" }}>
-                    <input type="text" placeholder="Search by title, author, or keywords..."
-                           style={{
-                               width: "350px", padding: "12px", border: "1px solid #CCC",
-                               borderRadius: "8px 0 0 8px", outline: "none"
-                           }}
+                    <input
+                        type="text"
+                        placeholder="Search by title, author, or keywords..."
+                        value={searchQuery}
+                        onChange={handleSearch} // Handle input change for search
+                        style={{
+                            width: "350px", padding: "12px", border: "1px solid #CCC",
+                            borderRadius: "8px 0 0 8px", outline: "none"
+                        }}
                     />
                     <button style={{
                         backgroundColor: "#000", color: "#FFF", padding: "12px 24px",
@@ -109,8 +131,8 @@ const HomePage = () => {
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }}>
-                    {papers.length > 0 ? (
-                        papers.map((paper, index) => (
+                    {filteredPapers.length > 0 ? (
+                        filteredPapers.map((paper, index) => (
                             <div key={index} style={{
                                 backgroundColor: "#FFF", padding: "24px", borderRadius: "8px",
                                 boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)"
