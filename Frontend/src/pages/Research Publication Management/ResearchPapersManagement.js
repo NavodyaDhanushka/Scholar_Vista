@@ -8,7 +8,8 @@ import {
     Filter,
     Download,
     Plus,
-    AlertCircle
+    AlertCircle,
+    LogOut
 } from "lucide-react";
 
 const ResearchPapersManagement = () => {
@@ -18,9 +19,15 @@ const ResearchPapersManagement = () => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
+    const [adminName, setAdminName] = useState(null);
 
     useEffect(() => {
         fetchPapers();
+        // Retrieve admin's name from localStorage when the component mounts
+        const storedAdminName = localStorage.getItem("adminName");
+        if (storedAdminName) {
+            setAdminName(storedAdminName);
+        }
     }, []);
 
     const fetchPapers = async () => {
@@ -71,17 +78,25 @@ const ResearchPapersManagement = () => {
 
     const handleEditSave = async () => {
         try {
+            const formData = new FormData();
+            formData.append("title", editData.title);
+            formData.append("author", editData.author);
+            formData.append("year", editData.year);
+            formData.append("introduction", editData.introduction);
+
             const response = await fetch(`http://localhost:8005/api/papers/${editData.id}`, {
                 method: "PUT",
                 headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`, // Do NOT set Content-Type for FormData
                 },
-                body: JSON.stringify(editData),
+                body: formData,  // Send FormData instead of JSON
             });
+
             if (response.ok) {
                 fetchPapers();
                 setEditData(null);
+            } else {
+                console.error("Failed to update paper");
             }
         } catch (error) {
             console.error("Error updating paper:", error);
@@ -112,7 +127,7 @@ const ResearchPapersManagement = () => {
             {/* Sidebar */}
             <div className="w-64 bg-white shadow-lg">
                 <div className="p-6">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Research Admin</h2>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Admin Dashboard</h2>
                     <nav className="space-y-2">
                         <a href="#" className="flex items-center px-4 py-2 text-gray-700 bg-gray-100 rounded-lg">
                             <FileText className="w-5 h-5 mr-3" />
@@ -158,6 +173,18 @@ const ResearchPapersManagement = () => {
                         </div>
                     </div>
 
+                    {/* Admin Name & Logout Button */}
+                    <div className="flex justify-between items-center mb-4">
+                        <span className="text-lg font-medium text-gray-800">{adminName ? `Hello, ${adminName}` : "Admin"}</span>
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center text-sm font-medium text-gray-700 hover:text-red-500"
+                        >
+                            <LogOut className="w-5 h-5 mr-2" />
+                            Logout
+                        </button>
+                    </div>
+
                     {/* Upload Section */}
                     <div className="bg-white p-6 rounded-xl shadow-sm mb-8 border-2 border-dashed border-gray-300">
                         <div className="text-center">
@@ -196,6 +223,9 @@ const ResearchPapersManagement = () => {
                                             <div>
                                                 <h4 className="text-lg font-medium text-gray-900">{paper.title}</h4>
                                                 <p className="text-sm text-gray-500">Uploaded on {new Date().toLocaleDateString()}</p>
+                                                <p className="text-sm text-gray-500">Author: {paper.author}</p> {/* Author */}
+                                                <p className="text-sm text-gray-500">Year: {paper.year}</p> {/* Year */}
+                                                {/*<p className="text-sm text-gray-500">Introduction: {paper.introduction}</p>*/} {/* Introduction */}
                                             </div>
                                         </div>
                                         <div className="flex items-center space-x-4">
@@ -231,16 +261,34 @@ const ResearchPapersManagement = () => {
                             value={editData.title}
                             onChange={(e) => setEditData({ ...editData, title: e.target.value })}
                         />
-                        <div className="mt-4 flex justify-end space-x-3">
+                        <input
+                            type="text"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-4"
+                            value={editData.author}
+                            onChange={(e) => setEditData({ ...editData, author: e.target.value })}
+                        />
+                        <input
+                            type="text"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-4"
+                            value={editData.year}
+                            onChange={(e) => setEditData({ ...editData, year: e.target.value })}
+                        />
+                        {/*<textarea
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-4"
+                            value={editData.introduction}
+                            onChange={(e) => setEditData({ ...editData, introduction: e.target.value })}
+                            rows={4}
+                        />*/}
+                        <div className="mt-4 flex justify-between">
                             <button
                                 onClick={() => setEditData(null)}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
+                                className="text-gray-500 hover:text-gray-800"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleEditSave}
-                                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"
+                                className="bg-blue-600 text-white px-4 py-2 rounded-md"
                             >
                                 Save Changes
                             </button>
@@ -253,21 +301,17 @@ const ResearchPapersManagement = () => {
             {showDeleteConfirm && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white rounded-lg p-6 w-96">
-                        <div className="flex items-center mb-4">
-                            <AlertCircle className="w-6 h-6 text-red-500 mr-2" />
-                            <h3 className="text-lg font-medium text-gray-900">Confirm Deletion</h3>
-                        </div>
-                        <p className="text-gray-500 mb-4">Are you sure you want to delete this paper? This action cannot be undone.</p>
-                        <div className="flex justify-end space-x-3">
+                        <h3 className="text-lg font-medium text-gray-900 mb-4">Are you sure you want to delete this paper?</h3>
+                        <div className="flex justify-between">
                             <button
                                 onClick={() => setShowDeleteConfirm(false)}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
+                                className="text-gray-500 hover:text-gray-800"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={confirmDelete}
-                                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md"
+                                className="bg-red-600 text-white px-4 py-2 rounded-md"
                             >
                                 Delete
                             </button>
