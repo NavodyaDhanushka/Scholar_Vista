@@ -6,7 +6,9 @@ import AdminRegister from "./pages/Admin/Register";
 import AdminLogin from "./pages/Admin/Login";
 import './App.css';
 import ResearchPapersManagement from "./pages/Research Publication Management/ResearchPapersManagement";
-
+import SearchPage from "./pages/search/pages/SearchPage";
+import SearchLogsManager from "./pages/search/components/SearchLogsManager";
+import TrendingReport from "./pages/search/pages/TrendingReport";
 const AnimatedRoutes = () => {
     const location = useLocation();
     const nodeRef = useRef(null); // 👈 Define a ref for CSSTransition
@@ -21,6 +23,9 @@ const AnimatedRoutes = () => {
             >
                 <div ref={nodeRef} className="route-container">
                     <Routes location={location}>
+                        <Route path="/search" element={<SearchPage />} />
+                        <Route path="/searchlogs" element={<SearchLogsManager />} />
+                        <Route path="/trending" element={<TrendingReport />} />
                         <Route path="/" element={<HomePage />} />
                         <Route path="/register" element={<AdminRegister />} />
                         <Route path="/login" element={<AdminLogin />} />
