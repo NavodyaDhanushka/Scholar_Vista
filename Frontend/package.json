@@ -9,6 +9,8 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.8.3",
     "chart.js": "^4.4.8",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.484.0",
     "postcss-loader": "^8.1.1",
