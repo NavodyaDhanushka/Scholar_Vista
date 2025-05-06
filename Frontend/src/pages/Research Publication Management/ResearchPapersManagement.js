@@ -11,6 +11,8 @@ import {
     AlertCircle,
     LogOut
 } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const ResearchPapersManagement = () => {
     const [papers, setPapers] = useState([]);
@@ -118,6 +120,31 @@ const ResearchPapersManagement = () => {
         }
     };
 
+    const downloadPapersPDF = () => {
+        const doc = new jsPDF();
+
+        // Title
+        doc.setFontSize(16);
+        doc.text("Details List of the Uploaded Research Papers", 14, 20);
+
+        // Date
+        const downloadDate = new Date().toLocaleString();
+        doc.setFontSize(10);
+        doc.text(`Downloaded on: ${downloadDate}`, 14, 28);
+
+        // Table
+        const tableData = papers.map((p, index) => [index + 1, p.title, p.author]);
+        autoTable(doc, {
+            startY: 35,
+            head: [["#", "Title", "Author"]],
+            body: tableData,
+        });
+
+        // Save the PDF
+        doc.save("research_papers_list.pdf");
+    };
+
+
     const filteredPapers = papers
         .filter(paper => paper.title.toLowerCase().includes(searchTerm.toLowerCase()))
         .filter(paper => filterStatus === "all" ? true : paper.status === filterStatus);
@@ -161,6 +188,15 @@ const ResearchPapersManagement = () => {
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
+                            <button
+                                onClick={downloadPapersPDF}
+                                className="flex items-center px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-100 text-sm font-medium text-gray-700"
+                            >
+                                <Download className="w-4 h-4 mr-2" />
+                                Download PDF
+                            </button>
+
+
                             <select
                                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 value={filterStatus}
