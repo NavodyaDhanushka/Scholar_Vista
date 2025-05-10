@@ -11,6 +11,9 @@ import AddAuthorForm from "./pages/Author Management/AddAuthorForm";
 import SearchPage from "./pages/Automated Data Extraction & Source Management/pages/SearchPage";
 import TrendingReport from "./pages/Automated Data Extraction & Source Management/pages/TrendingReport";
 import SearchLogsManager from "./pages/Automated Data Extraction & Source Management/components/SearchLogsManager";
+import AdminModeration from "./pages/Comments&Comment Management/AdminModeration";
+import CommentForm from "./pages/Comments&Comment Management/CommentForm";
+import PaperDetailsPage from "./pages/Comments&Comment Management/PaperDetailsPage";
 
 const AnimatedRoutes = () => {
     const location = useLocation();
@@ -35,6 +38,9 @@ const AnimatedRoutes = () => {
                         <Route path="/searchLogs" element={<SearchPage />} />
                         <Route path="/trendingReport" element={<TrendingReport/>} />
                         <Route path="/searchLogsManagement" element={<SearchLogsManager/>} />
+                        <Route path="/adminModeration" element={<AdminModeration/>}/>
+                        <Route path="/commentForm" element={<CommentForm/>}/>
+                        <Route path="/paper/:id" element={<PaperDetailsPage />} />
                     </Routes>
                 </div>
             </CSSTransition>
