@@ -3,6 +3,8 @@ import { FaSearch, FaRegBookmark } from "react-icons/fa";
 import { FiArrowRight } from "react-icons/fi";
 import { BsTwitter, BsLinkedin, BsGithub } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+
 
 const HomePage = () => {
     const navigate = useNavigate();
@@ -139,7 +141,15 @@ const HomePage = () => {
                             }}>
                                 <h4 style={{ fontSize: "16px", fontWeight: "bold" }}>{paper.author}</h4>
                                 <p style={{ color: "#777", fontSize: "14px" }}>{paper.institution}</p>
-                                <h5 style={{ marginTop: "12px", fontSize: "16px", fontWeight: "bold" }}>{paper.title}</h5>
+                                <h5 style={{ marginTop: "12px", fontSize: "16px", fontWeight: "bold" }}>
+                                    <Link
+                                        to={`/paper/${paper.id}`}
+                                        style={{ color: "#000", textDecoration: "none" }}
+                                    >
+                                        {paper.title}
+                                    </Link>
+                                </h5>
+
                                 <p style={{ color: "#777", fontSize: "14px" }}>{paper.published}</p>
 
                                 <div style={{ marginTop: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>

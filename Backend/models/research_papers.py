@@ -1,4 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy.orm import relationship
+
 from Backend.core.database import Base
 
 
@@ -11,3 +13,4 @@ class ResearchPaper(Base):
     year = Column(Integer, nullable=False)
     introduction = Column(Text, nullable=True)  # ✅ Add Introduction Column
     file_path = Column(String(255), nullable=False)  # Store PDF file path
+    comments = relationship("Comment", back_populates="paper", cascade="all, delete")
