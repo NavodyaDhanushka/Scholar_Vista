@@ -40,7 +40,6 @@ const SearchLogsManager = () => {
     };
 
     return (
-
         <div className="logs-container">
             <h2>🔍 Search Logs</h2>
             {loading ? (

@@ -1,10 +1,12 @@
 import os
-import uuid
 import re
+import uuid
+
 import fitz
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status
 from sqlalchemy.orm import Session
 from starlette.responses import FileResponse
+
 from Backend.core.database import get_db
 from Backend.dependencies.auth import get_current_user
 from Backend.models.research_papers import ResearchPaper
@@ -14,6 +16,7 @@ router = APIRouter()
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
 
 # 📌 Function to Extract Metadata from PDF
 def extract_metadata_from_pdf(pdf_path):
@@ -35,7 +38,8 @@ def extract_metadata_from_pdf(pdf_path):
     metadata["year"] = year_match.group(1) if year_match else "Unknown Year"
 
     # Extract Introduction (Find text after "Introduction" heading)
-    intro_match = re.search(r"(?i)\bIntroduction\b(.*?)(?=\b(?:Methodology|Materials|Related Work|Background)\b)", text, re.DOTALL)
+    intro_match = re.search(r"(?i)\bIntroduction\b(.*?)(?=\b(?:Methodology|Materials|Related Work|Background)\b)", text,
+                            re.DOTALL)
     metadata["introduction"] = intro_match.group(1).strip() if intro_match else "Introduction not found"
 
     return metadata
@@ -44,9 +48,9 @@ def extract_metadata_from_pdf(pdf_path):
 # 📌 Upload Research Paper (Admins Only)
 @router.post("/upload/", response_model=ResearchPaperResponse)
 async def upload_paper(
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)  # Ensure user is admin
+        file: UploadFile = File(...),
+        db: Session = Depends(get_db),
+        current_user: dict = Depends(get_current_user)  # Ensure user is admin
 ):
     if current_user["role"] != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can upload research papers")
@@ -60,7 +64,8 @@ async def upload_paper(
 
     # Extract metadata
     metadata = extract_metadata_from_pdf(file_path)
-    title, authors, year, introduction = metadata["title"], metadata["authors"], metadata["year"], metadata["introduction"]
+    title, authors, year, introduction = metadata["title"], metadata["authors"], metadata["year"], metadata[
+        "introduction"]
 
     # Save to MySQL database
     new_paper = ResearchPaper(title=title, author=authors, year=year, introduction=introduction, file_path=file_path)
@@ -89,12 +94,12 @@ async def get_paper(paper_id: int, db: Session = Depends(get_db)):
 # 📌 Update Research Paper Details (Admins Only)
 @router.put("/papers/{paper_id}")
 async def update_paper(
-    paper_id: int,
-    title: str = Form(None),
-    author: str = Form(None),
-    year: int = Form(None),
-    introduction: str = Form(None),
-    db: Session = Depends(get_db)
+        paper_id: int,
+        title: str = Form(None),
+        author: str = Form(None),
+        year: int = Form(None),
+        introduction: str = Form(None),
+        db: Session = Depends(get_db)
 ):
     paper = db.query(ResearchPaper).filter(ResearchPaper.id == paper_id).first()
     if not paper:
@@ -114,6 +119,7 @@ async def update_paper(
     db.refresh(paper)
 
     return {"message": "Paper updated successfully", "paper": paper}
+
 
 # 📌 Delete Research Paper (Admins Only)
 @router.delete("/papers/{paper_id}")
@@ -135,6 +141,13 @@ async def delete_paper(paper_id: int, db: Session = Depends(get_db), current_use
     db.commit()
 
     return {"message": "Paper deleted successfully"}
+
+
+@router.get("/download/{filename}")
+async def download_file(filename: str):
+    file_path = f"uploads/{filename}"
+    return FileResponse(file_path, media_type="application/pdf")
+
 
 @router.get("/download/{filename}")
 async def download_file(filename: str):
