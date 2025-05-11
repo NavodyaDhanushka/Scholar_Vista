@@ -28,6 +28,7 @@ class AuthorCreate(AuthorBase):
 class AuthorUpdate(AuthorBase):
     name: Optional[str] = None
     email: Optional[EmailStr] = None
+    areas_of_expertise: Optional[str] = None
 
 class AuthorResponse(AuthorBase):
     id: int
