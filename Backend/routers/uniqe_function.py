@@ -1,14 +1,16 @@
 import os
+import shutil
+from operator import itemgetter
+
+from decouple import config
+from langchain_community.document_loaders import WebBaseLoader, PyPDFLoader
+from langchain_core.prompts.chat import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough, RunnableParallel
+from langchain_openai import ChatOpenAI
 from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import QdrantVectorStore
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import WebBaseLoader
 from qdrant_client import QdrantClient, models
-from langchain_core.prompts.chat import ChatPromptTemplate
-from langchain_core.runnables import RunnablePassthrough, RunnableParallel
-from operator import itemgetter
-from decouple import config
-from langchain_openai import ChatOpenAI
 
 # Qdrant Configuration
 qdrant_api_key = config("QDRANT_API_KEY")
@@ -41,6 +43,7 @@ prompt = ChatPromptTemplate.from_template(prompt_template)
 # Define Vector Store
 vector_store = None
 
+
 def create_collection_if_not_exists(collection_name):
     try:
         # Try to get the collection
@@ -54,6 +57,7 @@ def create_collection_if_not_exists(collection_name):
             vectors_config=models.VectorParams(size=1536, distance=models.Distance.COSINE)
         )
         print(f"Collection {collection_name} created successfully")
+
 
 # Ensure collection exists before any operation
 create_collection_if_not_exists(collection_name)
@@ -74,6 +78,7 @@ text_splitter = RecursiveCharacterTextSplitter(
     length_function=len
 )
 
+
 # Function to upload website data to collection
 def upload_website_to_collection(url: str):
     loader = WebBaseLoader(url)
@@ -84,24 +89,37 @@ def upload_website_to_collection(url: str):
     vector_store.add_documents(docs)
     return f"Successfully uploaded {len(docs)} documents to collection {collection_name} from {url}"
 
+
 # Example upload of website data to collection
-#upload_website_to_collection("https://hamel.dev/blog/posts/evals/")
+# upload_website_to_collection("https://hamel.dev/blog/posts/evals/")
 
 # Langchain RAG setup
 retriever = vector_store.as_retriever()
 
+
+def upload_pdf_to_collection(file_path: str):
+    loader = PyPDFLoader(file_path)
+    docs = loader.load_and_split(text_splitter)
+    for doc in docs:
+        doc.metadata = {"source_file": os.path.basename(file_path)}
+
+    vector_store.add_documents(docs)
+    return f"Successfully uploaded {len(docs)} documents to collection {collection_name} from {file_path}"
+
+
 def create_chain():
     chain = (
-        {
-            "context": retriever.with_config(top_k=4),
-            "question": RunnablePassthrough(),
-        }
-        | RunnableParallel({
-            "response": prompt | model,
-            "context": itemgetter("context"),
-            })
+            {
+                "context": retriever.with_config(top_k=4),
+                "question": RunnablePassthrough(),
+            }
+            | RunnableParallel({
+        "response": prompt | model,
+        "context": itemgetter("context"),
+    })
     )
     return chain
+
 
 def get_answer_and_docs(question: str):
     print(f"Question: {question}")
@@ -115,20 +133,24 @@ def get_answer_and_docs(question: str):
         "context": context
     }
 
+
 # FastAPI Router setup for chat and indexing
-from fastapi import HTTPException, APIRouter
+from fastapi import HTTPException, APIRouter, UploadFile, File
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
 
 router = APIRouter()
 
+
 # Define the payload structure for /chat
 class Message(BaseModel):
     message: str
 
+
 # Define the payload structure for /indexing
 class URLPayload(BaseModel):
     url: str
+
 
 # Chat endpoint
 @router.post("/chat", summary="Chat with the RAG API through this endpoint")
@@ -163,12 +185,31 @@ async def chat(payload: Message):
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
 
-
 # Indexing endpoint
 @router.post("/indexing", summary="Index a website through this endpoint")
 async def indexing(url: str):
     try:
         response = upload_website_to_collection(url)
+        return JSONResponse(content={"response": response}, status_code=200)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@router.post("/index-pdf", summary="Index a PDF file through this endpoint")
+async def index_pdf(file: UploadFile = File(...)):
+    try:
+        # Save uploaded file temporarily
+        temp_path = f"temp_files/{file.filename}"
+        os.makedirs("temp_files", exist_ok=True)
+        with open(temp_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        # Upload to vector store
+        response = upload_pdf_to_collection(temp_path)
+
+        # Clean up
+        os.remove(temp_path)
+
         return JSONResponse(content={"response": response}, status_code=200)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
