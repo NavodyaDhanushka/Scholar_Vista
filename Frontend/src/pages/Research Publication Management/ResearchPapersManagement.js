@@ -8,9 +8,12 @@ import {
     Filter,
     Download,
     Plus,
+    MessageSquare,
+    User,
     AlertCircle,
     LogOut
 } from "lucide-react";
+
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -161,15 +164,15 @@ const ResearchPapersManagement = () => {
                             Research Papers
                         </a>
                         <a href="/addAuthor" className="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
-                            <Filter className="w-5 h-5 mr-3" />
+                            <User className="w-5 h-5 mr-3" />
                             Authors
                         </a>
                         <a href="/searchLogsManagement" className="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
-                            <Download className="w-5 h-5 mr-3" />
+                            <Search className="w-5 h-5 mr-3" />
                             Search Log Management
                         </a>
                         <a href="/adminModeration" className="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
-                            <Download className="w-5 h-5 mr-3" />
+                            <MessageSquare className="w-5 h-5 mr-3" />
                             Comment Moderation
                         </a>
                     </nav>
