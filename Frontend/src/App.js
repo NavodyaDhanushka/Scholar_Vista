@@ -14,6 +14,7 @@ import SearchLogsManager from "./pages/Automated Data Extraction & Source Manage
 import AdminModeration from "./pages/Comments&Comment Management/AdminModeration";
 import CommentForm from "./pages/Comments&Comment Management/CommentForm";
 import PaperDetailsPage from "./pages/Comments&Comment Management/PaperDetailsPage";
+import Author from "./pages/Author Management/Author";
 
 const AnimatedRoutes = () => {
     const location = useLocation();
@@ -41,6 +42,7 @@ const AnimatedRoutes = () => {
                         <Route path="/adminModeration" element={<AdminModeration/>}/>
                         <Route path="/commentForm" element={<CommentForm/>}/>
                         <Route path="/paper/:id" element={<PaperDetailsPage />} />
+                        <Route path="/author" element={<Author />} />
                     </Routes>
                 </div>
             </CSSTransition>
