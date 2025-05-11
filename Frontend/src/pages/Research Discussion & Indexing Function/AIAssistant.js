@@ -4,6 +4,7 @@ const AIAssistant = () => {
     const [query, setQuery] = useState("");
     const [recentActivity, setRecentActivity] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
 
     const addActivity = (type, text) => {
         const newActivity = {
@@ -30,6 +31,28 @@ const AIAssistant = () => {
         } catch (err) {
             console.error("Search failed", err);
             addActivity("question", `Q: ${query} — A: Error fetching answer.`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handlePDFUpload = async () => {
+        if (!selectedFile) return;
+        setLoading(true);
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        try {
+            const res = await fetch("http://localhost:8005/api/index-pdf", {
+                method: "POST",
+                body: formData,
+            });
+            const data = await res.json();
+            addActivity("pdf", `Uploaded PDF: ${selectedFile.name} — ${data.response || "No confirmation"}`);
+            setSelectedFile(null);
+        } catch (err) {
+            console.error("PDF upload failed", err);
+            addActivity("pdf", `Failed to upload: ${selectedFile.name}`);
         } finally {
             setLoading(false);
         }
@@ -66,8 +89,6 @@ const AIAssistant = () => {
                     <h2 style={{ margin: 0 }}>AI Assistant</h2>
                     <nav>
                         <a href="/" style={{ margin: "0 10px", textDecoration: "none", color: "#333" }}>Home</a>
-                        <a href="#" style={{ margin: "0 10px", textDecoration: "none", color: "#333" }}>History</a>
-                        <a href="#" style={{ margin: "0 10px", textDecoration: "none", color: "#333" }}>Settings</a>
                     </nav>
                 </header>
 
@@ -76,13 +97,28 @@ const AIAssistant = () => {
                     <button onClick={handleIndex} style={{ padding: "10px 15px", backgroundColor: "#000", color: "#fff", borderRadius: "5px", border: "none", cursor: "pointer" }}>🔗 Index Links</button>
                 </div>
 
-                <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", alignItems: "center", gap: "10px" }}>
+                <div style={{ marginTop: "10px", textAlign: "center" }}>
+                    <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(e) => setSelectedFile(e.target.files[0])}
+                        style={{ marginRight: "10px" }}
+                    />
+                    <button
+                        onClick={handlePDFUpload}
+                        disabled={loading || !selectedFile}
+                        style={{ padding: "10px 15px", backgroundColor: "#000", color: "#fff", borderRadius: "5px", border: "none", cursor: "pointer" }}
+                    >
+                        {loading ? "Uploading..." : "📄 Upload PDF"}
+                    </button>
+                </div>
+                <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
                     <input
                         type="text"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Ask a question or paste a link to index..."
-                        style={{ flex: 1, padding: "10px", borderRadius: "5px", border: "1px solid #ddd", fontSize: "16px" }}
+                        style={{ flex: 1, minWidth: "250px", padding: "10px", borderRadius: "5px", border: "1px solid #ddd", fontSize: "16px" }}
                     />
                     <button onClick={handleSearch} disabled={loading} style={{ padding: "10px 15px", backgroundColor: "#000", color: "#fff", borderRadius: "5px", border: "none", cursor: "pointer" }}>
                         {loading ? "Loading..." : "Search"}
@@ -91,6 +127,7 @@ const AIAssistant = () => {
                         {loading ? "Indexing..." : "+ Index"}
                     </button>
                 </div>
+
 
                 <div style={{ marginTop: "30px", backgroundColor: "#f1f1f1", padding: "15px", borderRadius: "10px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
