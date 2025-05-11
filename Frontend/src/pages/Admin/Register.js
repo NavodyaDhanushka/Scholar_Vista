@@ -9,7 +9,7 @@ const AdminRegister = () => {
     password: "",
     terms: false,
   });
-  const [error, setError] = useState(null);  // To handle error messages
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -20,11 +20,39 @@ const AdminRegister = () => {
     }));
   };
 
+  const validateForm = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!formData.fullName.trim()) {
+      return "Full Name is required.";
+    }
+    if (!emailRegex.test(formData.email)) {
+      return "Please enter a valid email address.";
+    }
+    if (!formData.username.trim()) {
+      return "Username is required.";
+    }
+    if (formData.password.length < 6) {
+      return "Password must be at least 6 characters.";
+    }
+    if (!formData.terms) {
+      return "You must agree to the Terms and Conditions.";
+    }
+
+    return null; // All good
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Registering:", formData);
 
-    // Fix field name: Convert fullName to name
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setError(null); // Clear any previous errors
+
     const { fullName, terms, ...rest } = formData;
     const cleanFormData = { name: fullName, ...rest };
 
@@ -49,13 +77,12 @@ const AdminRegister = () => {
     }
   };
 
-
   return (
       <div style={styles.container}>
         <div style={styles.formWrapper}>
           <h2 style={styles.title}>Admin Registration</h2>
           <p style={styles.subtitle}>Create your ScholarVista admin account</p>
-          {error && <p style={{ color: 'red' }}>{error}</p>} {/* Display error message */}
+          {error && <p style={{ color: 'red' }}>{error}</p>}
           <form onSubmit={handleSubmit} style={styles.form}>
             <input
                 type="text"
@@ -63,6 +90,7 @@ const AdminRegister = () => {
                 placeholder="Full Name"
                 style={styles.input}
                 onChange={handleChange}
+                value={formData.fullName}
                 required
             />
             <input
@@ -71,6 +99,7 @@ const AdminRegister = () => {
                 placeholder="Email Address"
                 style={styles.input}
                 onChange={handleChange}
+                value={formData.email}
                 required
             />
             <input
@@ -79,6 +108,7 @@ const AdminRegister = () => {
                 placeholder="Username"
                 style={styles.input}
                 onChange={handleChange}
+                value={formData.username}
                 required
             />
             <input
@@ -87,6 +117,7 @@ const AdminRegister = () => {
                 placeholder="Password"
                 style={styles.input}
                 onChange={handleChange}
+                value={formData.password}
                 required
             />
             <div style={styles.checkboxContainer}>
@@ -95,15 +126,24 @@ const AdminRegister = () => {
                   name="terms"
                   style={styles.checkbox}
                   onChange={handleChange}
+                  checked={formData.terms}
                   required
               />
               <label style={styles.label}>
-                I agree to the <a href="#" style={styles.link}>Terms and Conditions</a>
+                I agree to the{" "}
+                <a href="#" style={styles.link}>
+                  Terms and Conditions
+                </a>
               </label>
             </div>
-            <button type="submit" style={styles.button}>Register Account</button>
+            <button type="submit" style={styles.button}>
+              Register Account
+            </button>
             <p style={styles.footerText}>
-              Already have an account? <a href="/login" style={styles.link}>Sign in</a>
+              Already have an account?{" "}
+              <a href="/login" style={styles.link}>
+                Sign in
+              </a>
             </p>
           </form>
         </div>
